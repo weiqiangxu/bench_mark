@@ -20,7 +20,7 @@ type RedisApi struct {
 }
 
 func NewRedisAi() *RedisApi {
-	pool := newRedisPoolWithSizeAndPasswd("127.0.0.1:6379", 10, "")
+	pool := newRedisPoolWithSizeAndPasswd("127.0.0.1:6379", 1000, "")
 	return &RedisApi{
 		redisPool:   pool,
 		redisServer: "127.0.0.1:6379",
