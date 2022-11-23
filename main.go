@@ -1,32 +1,23 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 func main() {
 	engine := gin.Default()
-	engine.GET("/hello", helloHandler)
+	engine.GET("/user/list", userListHandler)
 	engine.Run(":8080")
 }
 
-// Param 请求参数
-type Param struct {
-	Name string `json:"name"`
-}
-
-// helloHandler /hello请求处理函数
-func helloHandler(c *gin.Context) {
-	var p Param
-	if err := c.ShouldBindJSON(&p); err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"msg": "we need a name",
-		})
+// userListHandler /hello请求处理函数
+func userListHandler(c *gin.Context) {
+	userList, err := getUserList()
+	if err != nil {
+		c.JSON(http.StatusOK, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{
-		"msg": fmt.Sprintf("hello %s", p.Name),
-	})
+	c.JSON(http.StatusOK, userList)
+	return
 }
