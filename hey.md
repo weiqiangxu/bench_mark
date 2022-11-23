@@ -372,3 +372,108 @@ Error distribution:
 ### 5000的并发 [MySQL直接炸了]
 hey -z 120s -c 5000  http://localhost:8080/school/list 
 ```
+
+```
+### 2000的并发 QPS就到达了1500了
+hey -z 120s -c 2000  http://localhost:8080/school/list
+
+Summary:
+  Total:	139.6770 secs
+  Slowest:	20.6940 secs
+  Fastest:	0.0001 secs
+  Average:	0.5845 secs
+  Requests/sec:	1513.0905  [之前的1000并发QPS是1200现在并发达到2000就变成了1500 但是响应时长从 2.00变2.06]
+  
+  Total data:	18433105 bytes
+  Size/request:	91 bytes
+
+Response time histogram:
+  0.000 [1]	|
+  2.069 [186852]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  4.139 [8793]	|■■
+  6.208 [1347]	|
+  8.278 [1827]	|
+  10.347 [945]	|
+  12.416 [471]	|
+  14.486 [291]	|
+  16.555 [274]	|
+  18.625 [235]	|
+  20.694 [147]	|
+
+
+Latency distribution:
+  10% in 0.0030 secs
+  25% in 0.0077 secs
+  50% in 0.0338 secs
+  75% in 0.3293 secs
+  90% in 1.6945 secs
+  95% in 2.6071 secs
+  99% in 8.9285 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0009 secs, 0.0001 secs, 20.6940 secs
+  DNS-lookup:	0.0004 secs, 0.0000 secs, 1.0833 secs
+  req write:	0.0001 secs, 0.0000 secs, 0.1896 secs
+  resp wait:	0.5792 secs, 0.0001 secs, 20.5821 secs
+  resp read:	0.0002 secs, 0.0000 secs, 0.1527 secs
+
+Status code distribution:
+  [200]	201183 responses
+
+Error distribution:
+  [6653]	Get "http://localhost:8080/school/list": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+```
+
+### 看看3000的并发下 很多请求失败
+
+```
+hey -z 120s -c 3000  http://localhost:8080/school/list
+
+Summary:
+  Total:	134.8539 secs
+  Slowest:	22.9676 secs
+  Fastest:	0.0277 secs
+  Average:	2.4938 secs
+  Requests/sec:	919.3209 [QPS降低到了919]
+  
+  Total data:	13965726 bytes
+  Size/request:	130 bytes
+
+Response time histogram:
+  0.028 [1]	|
+  2.322 [76778]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  4.616 [13518]	|■■■■■■■
+  6.910 [5932]	|■■■
+  9.204 [3324]	|■■
+  11.498 [2871]	|■
+  13.792 [1538]	|■
+  16.086 [1440]	|■
+  18.380 [1006]	|■
+  20.674 [523]	|
+  22.968 [1]	|
+
+
+Latency distribution:
+  10% in 0.2889 secs
+  25% in 0.4177 secs
+  50% in 1.1410 secs
+  75% in 2.7342 secs
+  90% in 6.9127 secs
+  95% in 10.8025 secs
+  99% in 16.9526 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0059 secs, 0.0277 secs, 22.9676 secs
+  DNS-lookup:	0.0129 secs, 0.0000 secs, 2.8672 secs
+  req write:	0.0007 secs, 0.0000 secs, 0.9943 secs
+  resp wait:	0.9801 secs, 0.0001 secs, 19.7405 secs
+  resp read:	0.0022 secs, 0.0000 secs, 3.7197 secs
+
+Status code distribution:
+  [200]	106932 responses
+
+Error distribution:
+  [8]	Get "http://localhost:8080/school/list": EOF
+  [4606]	Get "http://localhost:8080/school/list": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+```
+
