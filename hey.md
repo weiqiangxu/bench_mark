@@ -314,3 +314,61 @@ Status code distribution:
 Error distribution:
   [2037]	Get "http://localhost:8080/user/list": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
 ```
+
+### 看看MySQL的QPS
+
+```
+### 1000的并发 [还很正常]
+hey -z 120s -c 1000  http://localhost:8080/school/list 
+
+Summary:
+  Total:	138.9990 secs
+  Slowest:	19.9999 secs
+  Fastest:	0.0007 secs
+  Average:	0.4394 secs
+  Requests/sec:	1261.2181
+  
+  Total data:	8402677 bytes
+  Size/request:	48 bytes
+
+Response time histogram:
+  0.001 [1]	|
+  2.001 [167147]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  4.001 [1739]	|
+  6.000 [822]	|
+  8.000 [1172]	|
+  10.000 [382]	|
+  12.000 [111]	|
+  14.000 [129]	|
+  16.000 [141]	|
+  18.000 [39]	|
+  20.000 [199]	|
+
+
+Latency distribution:
+  10% in 0.0022 secs
+  25% in 0.0036 secs
+  50% in 0.0098 secs
+  75% in 0.3932 secs
+  90% in 1.3295 secs
+  95% in 1.5090 secs
+  99% in 7.2367 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:	0.0004 secs, 0.0007 secs, 19.9999 secs
+  DNS-lookup:	0.0002 secs, 0.0000 secs, 0.3546 secs
+  req write:	0.0000 secs, 0.0000 secs, 0.0726 secs
+  resp wait:	0.4388 secs, 0.0003 secs, 19.9999 secs
+  resp read:	0.0001 secs, 0.0000 secs, 0.0396 secs
+
+Status code distribution:
+  [200]	171882 responses
+
+Error distribution:
+  [2439]	Get "http://localhost:8080/school/list": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+```
+
+```
+### 5000的并发 [MySQL直接炸了]
+hey -z 120s -c 5000  http://localhost:8080/school/list 
+```
