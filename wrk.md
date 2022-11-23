@@ -7,13 +7,16 @@ wrk -c 400 -t 10 -d 120s -H "Authorization: Bearer pwd" --latency http://localho
 ### 用法
 
 ```
+连接数（c）与 QPS（q），请求响应时间毫秒（t）的关系大概可理解为：q = 1000/t * c
+如果连接数是10，响应时间100毫秒，那么QPS就是 1000/100 * 10 = 100 (10个连接数，每个连接数每秒钟处理10个当然就是100啦)
+
 wrk 4.2.0
 
 使用方法: wrk <选项> <被测HTTP服务的URL>                            
   Options:                                            
-    -c, --connections <N>  跟服务器建立并保持的TCP连接数量  
+    -c, --connections <N>  跟服务器建立并保持的TCP连接数量|连接数（connection）可以理解为并发数一般在测试过程中，这个值需要使用者不断向上调试，直至 QPS 达到一个临界点，便可认为此时的并发数为系统所能承受的最大并发量
     -d, --duration    <T>  压测时间           
-    -t, --threads     <N>  使用多少个线程进行压测   
+    -t, --threads     <N>  使用多少个线程进行压测   一般是CPU核数，最大不要超过 CPUx2 核数，否则会带来额外的上下文切换将线程数设置为CPU核数主要是为了WRK 能最大化利用 CPU，使结果更准确
                                                       
     -s, --script      <S>  指定Lua脚本路径       
     -H, --header      <H>  为每一个HTTP请求添加HTTP头      
@@ -148,4 +151,30 @@ Running 2m test @ http://localhost:8080/school/list
   Socket errors: connect 759, read 95, write 0, timeout 991
 Requests/sec:   1751.24
 Transfer/sec:    294.15KB
+```
+
+```
+### 启动 4 个线程, 每个线程维持 3000/4 个TCP连接 （-c可以理解为并发数）
+wrk -c 3000 -t 4 -d 120s -H "Authorization: Bearer pwd" --latency http://localhost:8080/school/list
+
+Running 2m test @ http://localhost:8080/school/list
+  4 threads and 3000 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   131.99ms  276.01ms   1.98s    87.10%
+    Req/Sec   474.62    237.05     1.29k    67.47%
+  Latency Distribution
+     50%    4.81ms
+     75%   41.81ms
+     90%  466.00ms
+     99%    1.34s 
+  201385 requests in 2.00m, 33.03MB read
+  Socket errors: connect 2753, read 157, write 31, timeout 801
+Requests/sec:   1677.28
+Transfer/sec:    281.69KB
+```
+
+[性能常识 WRK 个人使用经验总结](https://testerhome.com/topics/22601)
+
+```
+Req/Sec：表示的是每个线程每秒的完成的请求数，顺序分别是： 平均值，标准差，最大值，正负标准差；
 ```
